@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>&lt;inline-outline&gt; example page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
+    <style>
+      :root { 
+        
+      }
+
+      body { 
+        font-family: Prompt, sans-serif; 
+        font-size: 1.5rem; 
+        color: black;
+      }
+
+      a { color: inherit !important; }
+
+      p { max-width: 900px; margin: 1em auto}
+
+      h1 { text-align: center; }
+      section { 
+        max-width: 900px;
+        margin: 1rem auto;
+        border-top: 1px solid #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+    </style>
+    <script src="dist/index.iife.js" defer></script>
+  </head>
+  <body>
+    <h1>
+      <a href="https://github.com/ddamato/inline-outline">&lt;inline-outline/&gt;</a>
+    </h1>
+    <p>Create and edit a document outline using a web component</p>
+    <section>
+      <h2>Use the box below</h2>
+      <inline-outline>
+      </inline-outline>
+    </section>
+  </body>
+</html>
