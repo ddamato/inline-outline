@@ -186,8 +186,6 @@ class InlineOutline extends window.HTMLElement {
     this._drag.target.removeAttribute('data-dragging');
     this._drag.placeholder.remove();
     this.spotlight(this._drag.target);
-    if (this._drag.target.hasAttribute('data-trash')) this._drag.target.remove();
-    if (!this._$list.children.length) this.init();
     this.resetDrag();
   }
 }
