@@ -21,11 +21,6 @@ li[data-placeholder] {
   background: #eee;
 }
 
-li[data-trash] {
-  outline: 2px solid red;
-  outline-offset: .5em;
-}
-
 li:before {
   content: counters(item, ".") " ";
   counter-increment: item;
@@ -33,6 +28,10 @@ li:before {
   font-family: monospace;
   vertical-align: top;
   cursor: grab;
+}
+
+li[data-placeholder]:before {
+  color: transparent;
 }
 
 textarea {
