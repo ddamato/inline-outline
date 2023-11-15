@@ -5,3 +5,26 @@
 :host {
   display: block;
 }
+
+ol {
+  counter-reset: item
+}
+
+li {
+  display: block;
+  font-size: .9em;
+}
+
+li:before {
+  content: counters(item, ".") " ⠿";
+  counter-increment: item;
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+  vertical-align: top;
+  /* cursor: grab; */
+}
+
+textarea {
+  font-size: inherit;
+  font-family: inherit;
+}
