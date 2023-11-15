@@ -1,7 +1,6 @@
 import html from './template.html';
 import css from './styles.css';
 
-const TRASH_THRESHOLD = 50;
 const rect = ($el) => $el.getBoundingClientRect();
 class InlineOutline extends window.HTMLElement {
   constructor() {
