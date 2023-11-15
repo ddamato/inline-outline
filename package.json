@@ -1,6 +1,6 @@
 {
   "name": "inline-outline",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Create and edit a document outline using a web component",
   "main": "src/index.js",
   "browser": "dist/index.iife.js",
