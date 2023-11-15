@@ -1,19 +1,26 @@
 import html from './template.html';
 import css from './styles.css';
 
+const TRASH_THRESHOLD = 50;
+const rect = ($el) => $el.getBoundingClientRect();
 class InlineOutline extends window.HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' }).innerHTML = `<style type="text/css">${css}</style>${html}`;
     this._$list = this.shadowRoot.getElementById('list');
+    this.resetDrag();
     this._$list.addEventListener('keydown', (ev) => this.keyDown(ev));
     this._$list.addEventListener('keyup', (ev) => this.keyUp(ev));
   }
 
-  connectedCallback() {
+  init() {
     const $item = this.item();
     this._$list.appendChild($item);
     this.spotlight($item);
+  }
+
+  connectedCallback() {
+    this.init();
   }
 
   keyDown(ev) {
@@ -69,8 +76,8 @@ class InlineOutline extends window.HTMLElement {
     this.spotlight($item);
   }
 
-  spotlight(item) {
-    item.querySelector('textarea').focus();
+  spotlight($item) {
+    $item?.querySelector('textarea')?.focus();
   }
 
   enter(ev) {
@@ -87,21 +94,101 @@ class InlineOutline extends window.HTMLElement {
     // Move existing children to parent ol
     const $target = ev.target;
     const $list = $target.closest('ol');
-    if ($list === this._$list && $list.children.length === 1) return;
     $list.append(...$target.nextElementSibling.children);
     $target.parentElement.remove();
+    if (!this._$list.children.length) this.init();
     [...this._$list.querySelectorAll('textarea')].at(-1).focus();
   }
 
   item() {
-    const $li = document.createElement('li')
+    const $li = document.createElement('li');
     const $textarea = document.createElement('textarea');
     $textarea.setAttribute('contenteditable', 'plaintext-only');
     $textarea.setAttribute('rows', 1);
     const $ol = document.createElement('ol');
     $li.appendChild($textarea);
     $li.appendChild($ol);
+    $li.addEventListener('pointerdown', (ev) => this.onMouseDown(ev));
     return $li;
+  }
+
+  resetDrag() {
+    this._drag = {
+      x: 0,
+      y: 0,
+      target: null,
+      placeholder: null,
+      mousemove: Function.prototype,
+      mouseup: Function.prototype,
+    }
+  }
+
+  getPlaceholder(rect) {
+    const placeholder = document.createElement('li');
+    placeholder.dataset.placeholder = true;
+    placeholder.style.height = `${rect.height}px`;
+    placeholder.style.width = `${rect.width}px`;
+    return placeholder;
+  }
+
+  handlePlaceholder(ev) {
+    const $els = [...this.shadowRoot.elementsFromPoint(ev.pageX, ev.pageY)];
+    const hasPlaceholder = $els.includes(this._drag.placeholder);
+    if (hasPlaceholder) return;
+    const $closestItem = $els.find(($el) => $el.tagName.toLowerCase() === 'li' && ![this._drag.target, this._drag.placeholder].includes($el));
+    if (!$closestItem) return;
+    const itemRect = rect($closestItem);
+    const position = itemRect.top > ev.pageY - this._drag.y ? 'beforebegin' : 'afterend';
+    $closestItem.insertAdjacentElement(position, this._drag.placeholder);
+  }
+
+  onMouseDown(ev) {
+    if (ev.target !== ev.currentTarget) return;
+    const targetRect = rect(ev.target);
+    const x = targetRect.left;
+    const y = targetRect.top;
+    this._drag = {
+      target: ev.target,
+      placeholder: this.getPlaceholder(targetRect),
+      x: ev.pageX - x,
+      y: ev.pageY - y,
+      mousemove: this.onMouseMove.bind(this),
+      mouseup: this.onMouseUp.bind(this)
+    };
+    ev.target.dataset.dragging = true;
+    ev.target.parentElement.insertBefore(this._drag.placeholder, this._drag.target);
+    Object.assign(this._drag.target.style, {
+      width: `${targetRect.width}px`,
+      height: `${targetRect.height}px`,
+      position: 'absolute',
+      left: `${x}px`,
+      top: `${y}px`
+    });
+    document.addEventListener('pointermove', this._drag.mousemove);
+    document.addEventListener('pointerup', this._drag.mouseup);
+  }
+
+  onMouseMove(ev) {
+    const deltaX = ev.pageX - this._drag.x;
+    const deltaY = ev.pageY - this._drag.y;
+    Object.assign(this._drag.target.style, {
+      left: `${deltaX}px`,
+      top: `${deltaY}px`
+    });
+    this.handlePlaceholder(ev);
+  }
+
+  onMouseUp() {
+    document.removeEventListener('pointermove', this._drag.mousemove);
+    document.removeEventListener('pointerup', this._drag.mouseup);
+    this._drag.placeholder.parentElement.insertBefore(this._drag.target, this._drag.placeholder);
+    this._drag.target.removeAttribute('style');
+    this._drag.target.removeAttribute('data-dragging');
+    this._drag.placeholder.remove();
+    this.spotlight(this._drag.target);
+    if (this._drag.target.hasAttribute('data-trash')) this._drag.target.remove();
+    if (!this._$list.children.length) this.init();
+    this.resetDrag();
   }
 }
 

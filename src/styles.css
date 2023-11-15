@@ -7,21 +7,32 @@
 }
 
 ol {
-  counter-reset: item
+  counter-reset: item;
 }
 
 li {
   display: block;
   font-size: .9em;
+  border: 1px solid transparent;
+}
+
+li[data-placeholder] {
+  border: 1px dashed #aaa;
+  background: #eee;
+}
+
+li[data-trash] {
+  outline: 2px solid red;
+  outline-offset: .5em;
 }
 
 li:before {
-  content: counters(item, ".") " ⠿";
+  content: counters(item, ".") " ";
   counter-increment: item;
   font-variant-numeric: tabular-nums;
   font-family: monospace;
   vertical-align: top;
-  /* cursor: grab; */
+  cursor: grab;
 }
 
 textarea {
